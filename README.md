@@ -2,7 +2,7 @@
 
 This AWS CDK Python code can be used to deploy a CloudFront distribution pointing to an S3 Bucket, with an associated SSL Certificate, as well as an IAM user account with permissions to manage files in the S3 bucket.
 
-If you don't like using the CDK directly, you can just use the generated [CloudFormation.yaml]](CloudFormation.yaml) file to deploy the CloudFormation stack.
+If you don't like using the CDK directly, you can just use the generated [CloudFormation.yaml](CloudFormation.yaml) file to deploy the CloudFormation stack.
 
 
 For additional details, see [CloudFront and S3 Bucket CloudFormation Stack](https://technotes.videre.us/en/cloud/cloudfront-and-s3-bucket-cloudformation-stack/).

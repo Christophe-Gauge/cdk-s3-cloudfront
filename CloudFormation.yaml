@@ -1,0 +1,248 @@
+Parameters:
+  domainname:
+    Type: String
+    Default: static.example.com
+    Description: Domain Name
+  sourceip:
+    Type: String
+    Default: "***.***.***.***"
+    Description: Source IP Address
+Resources:
+  s3bucket1F310132:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      BucketName:
+        Ref: domainname
+      LifecycleConfiguration:
+        Rules:
+          - AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 1
+            ExpiredObjectDeleteMarker: true
+            Id: multipart
+            Status: Enabled
+          - Id: IA
+            Status: Enabled
+            Transitions:
+              - StorageClass: INTELLIGENT_TIERING
+                TransitionInDays: 0
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Domain
+          Value:
+            Ref: domainname
+        - Key: Project
+          Value: Wagtail Images
+        - Key: stackName
+          Value: S3CloudfrontStack
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+  s3bucketPolicy694C03A8:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket:
+        Ref: s3bucket1F310132
+      PolicyDocument:
+        Statement:
+          - Action:
+              - s3:GetBucketLocation
+              - s3:ListBucket
+              - s3:ListBucketMultipartUploads
+              - s3:ListBucketVersions
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - User00B015A1
+                  - Arn
+            Resource:
+              Fn::GetAtt:
+                - s3bucket1F310132
+                - Arn
+            Sid: AllowUserManageBucket
+          - Action: s3:*Object
+            Effect: Allow
+            Principal:
+              AWS:
+                Fn::GetAtt:
+                  - User00B015A1
+                  - Arn
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - s3bucket1F310132
+                      - Arn
+                  - /*
+            Sid: AllowUserManageBucketObjects
+          - Action: s3:*Object
+            Condition:
+              NotIpAddress:
+                aws:SourceIp:
+                  Ref: sourceip
+            Effect: Deny
+            Principal:
+              AWS: "*"
+            Resource:
+              - Fn::GetAtt:
+                  - s3bucket1F310132
+                  - Arn
+              - Fn::Join:
+                  - ""
+                  - - Fn::GetAtt:
+                        - s3bucket1F310132
+                        - Arn
+                    - /*
+            Sid: RestrictByIPAddress
+          - Action: s3:GetObject
+            Effect: Allow
+            Principal:
+              CanonicalUser:
+                Fn::GetAtt:
+                  - cloudfrontdistributionOrigin1S3Origin066C7A00
+                  - S3CanonicalUserId
+            Resource:
+              Fn::Join:
+                - ""
+                - - Fn::GetAtt:
+                      - s3bucket1F310132
+                      - Arn
+                  - /*
+        Version: "2012-10-17"
+  User00B015A1:
+    Type: AWS::IAM::User
+    Properties:
+      Tags:
+        - Key: Domain
+          Value:
+            Ref: domainname
+        - Key: Project
+          Value: Wagtail Images
+        - Key: stackName
+          Value: S3CloudfrontStack
+  AccessKeyE6B25659:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName:
+        Ref: User00B015A1
+  SecretA720EF05:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      SecretString:
+        Fn::GetAtt:
+          - AccessKeyE6B25659
+          - SecretAccessKey
+      Tags:
+        - Key: Domain
+          Value:
+            Ref: domainname
+        - Key: Project
+          Value: Wagtail Images
+        - Key: stackName
+          Value: S3CloudfrontStack
+    UpdateReplacePolicy: Delete
+    DeletionPolicy: Delete
+  myPolicyE3C880F7:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - iam:CreateAccessKey
+              - iam:DeleteAccessKey
+              - iam:ListAccessKeys
+            Effect: Allow
+            Resource:
+              Fn::GetAtt:
+                - User00B015A1
+                - Arn
+        Version: "2012-10-17"
+      PolicyName: myPolicyE3C880F7
+      Users:
+        - Ref: User00B015A1
+  MyCertificate41357985:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName:
+        Ref: domainname
+      Tags:
+        - Key: Domain
+          Value:
+            Ref: domainname
+        - Key: Name
+          Value:
+            Ref: domainname
+        - Key: Project
+          Value: Wagtail Images
+        - Key: stackName
+          Value: S3CloudfrontStack
+      ValidationMethod: DNS
+  cloudfrontdistributionOrigin1S3Origin066C7A00:
+    Type: AWS::CloudFront::CloudFrontOriginAccessIdentity
+    Properties:
+      CloudFrontOriginAccessIdentityConfig:
+        Comment: Identity for S3CloudfrontStackcloudfrontdistributionOrigin1973DE117
+  cloudfrontdistribution8BD9F130:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Aliases:
+          - Ref: domainname
+        DefaultCacheBehavior:
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          Compress: true
+          TargetOriginId: S3CloudfrontStackcloudfrontdistributionOrigin1973DE117
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - DomainName:
+              Fn::GetAtt:
+                - s3bucket1F310132
+                - RegionalDomainName
+            Id: S3CloudfrontStackcloudfrontdistributionOrigin1973DE117
+            S3OriginConfig:
+              OriginAccessIdentity:
+                Fn::Join:
+                  - ""
+                  - - origin-access-identity/cloudfront/
+                    - Ref: cloudfrontdistributionOrigin1S3Origin066C7A00
+        ViewerCertificate:
+          AcmCertificateArn:
+            Ref: MyCertificate41357985
+          MinimumProtocolVersion: TLSv1.2_2021
+          SslSupportMethod: sni-only
+      Tags:
+        - Key: Domain
+          Value:
+            Ref: domainname
+        - Key: Project
+          Value: Wagtail Images
+        - Key: stackName
+          Value: S3CloudfrontStack
+Outputs:
+  userNAME:
+    Value:
+      Ref: User00B015A1
+  accessKeyId:
+    Value: S3CloudfrontStack/AccessKey
+  SiteBucketName:
+    Value:
+      Ref: s3bucket1F310132
+  DistributionId:
+    Value:
+      Ref: cloudfrontdistribution8BD9F130
+  CertificateArn:
+    Value:
+      Ref: MyCertificate41357985
+

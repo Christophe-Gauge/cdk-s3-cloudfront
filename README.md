@@ -50,8 +50,8 @@ Deploy the `CloudFormation.yaml` template in your AWS account.
 
 A few notes about this deployment:
 - This stack assumes that you have a valid DNS Domain Name that you can use.
-- The SSL Certificate will be created by AWS, and uses DNS Validation to verify ownership of the DNS name. The Stack will *not* complete the deployment until the DNS validation has been completed.
-- For  safety, the S3 bucket removal Policy us set to RETAIN, the bucket and objects will *not* be deleted if you remove the CloudFormation stack.
+- The SSL Certificate will be created by AWS and uses DNS Validation to verify ownership of the DNS name. The Stack will *not* complete the deployment until the DNS validation has been completed.
+- For  safety, the S3 bucket removal Policy is set to RETAIN, the bucket and objects will *not* be deleted if you remove the CloudFormation stack.
 - The `aws_secret_access_key` for the IAM User account that is created will be stored in AWS Secrets Manager. Retrieve the value and delete the secret if you don't want to keep being charged for it.
-- The Stack will ask for an IP address during the deploment, that IP address is used in the Bucket Policy granting access to the IAM user, only.....
+- The Stack will ask for an IP address during the deployment, that IP address is used in the Bucket Policy granting access to the IAM user. As an extra precaution. only API calls originating from that IP address will be allowed.
 - Two S3 Bucket Lifecycle Policies will be created, one to delete incomplete multipart uploads (highly recommended for all your buckets), and one to move objects to the `INTELLIGENT_TIERING` Storage Class.

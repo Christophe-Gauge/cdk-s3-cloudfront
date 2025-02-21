@@ -1,5 +1,7 @@
 ## cdk-s3-cloudfront
 
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+
 This [AWS CDK Python code](s3_cloudfront/s3_cloudfront_stack.py) can be used to deploy a CloudFront distribution pointing to an S3 Bucket, with an associated SSL Certificate, as well as an IAM user account with permissions to manage files in the S3 bucket.
 
 If you don't like using the CDK directly, you can just use the generated [CloudFormation.yaml](CloudFormation.yaml) file to deploy the CloudFormation stack.

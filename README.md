@@ -7,7 +7,7 @@ This [AWS CDK Python code](s3_cloudfront/s3_cloudfront_stack.py) can be used to 
 If you don't like using the CDK directly, you can just use the generated [CloudFormation.yaml](CloudFormation.yaml) file to deploy the CloudFormation stack.
 
 
-For additional details, see [CloudFront and S3 Bucket CloudFormation Stack](https://technotes.videre.us/en/cloud/cloudfront-and-s3-bucket-cloudformation-stack/).
+For additional details on this code, see [CloudFront and S3 Bucket CloudFormation Stack](https://technotes.videre.us/en/cloud/cloudfront-and-s3-bucket-cloudformation-stack/).
 
 
 
